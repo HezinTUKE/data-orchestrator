@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:latest
+    restart: on-failure
+    ports:
+      - "5437:5432"
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: "data_orchestrator_db"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: on-failure
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  pg_data:
+  rabbitmq_data:
