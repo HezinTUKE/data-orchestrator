@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -12,10 +13,18 @@ from application.services.rabbitmq_service import MessageBrokerService
 async def lifespan(app: FastAPI):
     rabbitmq = await MessageBrokerService.init()
     await rabbitmq.consume(RoutingKeys.get_all_processors())
-    await ClockHandler.send_events(rabbitmq=rabbitmq)
-    yield
-    await rabbitmq.disconnect()
 
+    event = asyncio.Event()
+
+    send_events = asyncio.create_task(
+        ClockHandler.send_events(rabbitmq=rabbitmq, event=event)
+    )
+    try:
+        yield
+    finally:
+        event.set()
+        await rabbitmq.disconnect()
+        await send_events
 
 app = FastAPI(lifespan=lifespan)
 

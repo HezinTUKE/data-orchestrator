@@ -1,11 +1,13 @@
 import datetime
 import os.path
+from collections import namedtuple
 
 from pyspark.sql import DataFrame
 from sqlalchemy import exists, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from application.data_classes.metadata_dc import MetadataBaseDC
+from application.enums.allowed_extensions import AllowedExtensions
 from application.enums.file_status import FileStatus
 from application.models import MetadataModel
 from application.models.base import with_session
@@ -69,13 +71,32 @@ class FileManagerHandler:
             if not record:
                 continue
 
-            file_data_frame: DataFrame = await StoreFileService.read_file(
+            success_processed = await cls._process_particular_file(
                 file_name=record.file_name,
-                file_path=record.storage_path,
-                file_type=record.file_type,
+                storage_path=record.storage_path,
+                file_type=record.file_type
+            )
+
+            await cls._batch_update(
+                file_metadata_ids=file_metadata_ids,
+                new_status=FileStatus.PROCESSED if success_processed else FileStatus.FAILED,
+                session=session,
             )
 
         return True
+
+    @classmethod
+    async def _process_particular_file(cls, file_name: str, storage_path: str, file_type: AllowedExtensions) -> bool:
+        try:
+            file_data_frame: DataFrame = await StoreFileService.read_file(
+                file_name=file_name,
+                file_path=storage_path,
+                file_type=file_type,
+            )
+            return True
+        except Exception as ex:
+            print(ex)
+            return False
 
     @staticmethod
     async def _overwrite_policy(
