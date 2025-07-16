@@ -1,7 +1,7 @@
 import time
 import uuid
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from application.enums.allowed_extensions import AllowedExtensions
 from application.enums.file_status import FileStatus

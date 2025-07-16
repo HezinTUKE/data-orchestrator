@@ -11,12 +11,11 @@ from application.services.rabbitmq_service import MessageBrokerService
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     rabbitmq = await MessageBrokerService.init()
-    await rabbitmq.consume(
-        RoutingKeys.get_all_processors()
-    )
-    await ClockHandler.send_events()
+    await rabbitmq.consume(RoutingKeys.get_all_processors())
+    await ClockHandler.send_events(rabbitmq=rabbitmq)
     yield
     await rabbitmq.disconnect()
+
 
 app = FastAPI(lifespan=lifespan)
 

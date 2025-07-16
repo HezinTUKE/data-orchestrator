@@ -3,10 +3,10 @@ import os.path
 from logging.config import fileConfig
 from pathlib import Path
 
+from alembic import context
 from sqlalchemy import Connection, engine_from_config, pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
 from application.config import get_config_section
 from application.models.base import Base
 from application.models.metadata_model import MetadataModel
