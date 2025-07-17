@@ -26,6 +26,7 @@ async def lifespan(app: FastAPI):
         await rabbitmq.disconnect()
         await send_events
 
+
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(UploadFileHttp.router)

@@ -1,5 +1,5 @@
-from pyspark.sql.types import (StringType, FloatType, IntegerType,
-                               StructField, StructType, TimestampType)
+from pyspark.sql.types import (FloatType, IntegerType, StringType, StructField,
+                               StructType, TimestampType)
 
 taxi_tripdata_schema = StructType(
     [

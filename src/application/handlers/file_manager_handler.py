@@ -1,6 +1,5 @@
 import datetime
 import os.path
-from collections import namedtuple
 
 from pyspark.sql import DataFrame
 from sqlalchemy import exists, select, update
@@ -74,19 +73,23 @@ class FileManagerHandler:
             success_processed = await cls._process_particular_file(
                 file_name=record.file_name,
                 storage_path=record.storage_path,
-                file_type=record.file_type
+                file_type=record.file_type,
             )
 
             await cls._batch_update(
                 file_metadata_ids=file_metadata_ids,
-                new_status=FileStatus.PROCESSED if success_processed else FileStatus.FAILED,
+                new_status=(
+                    FileStatus.PROCESSED if success_processed else FileStatus.FAILED
+                ),
                 session=session,
             )
 
         return True
 
     @classmethod
-    async def _process_particular_file(cls, file_name: str, storage_path: str, file_type: AllowedExtensions) -> bool:
+    async def _process_particular_file(
+        cls, file_name: str, storage_path: str, file_type: AllowedExtensions
+    ) -> bool:
         try:
             file_data_frame: DataFrame = await StoreFileService.read_file(
                 file_name=file_name,

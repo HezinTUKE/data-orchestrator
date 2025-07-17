@@ -2,11 +2,11 @@ import os.path
 
 from pyspark.sql import DataFrame
 
+from application import spark
 from application.aws.s3_manager import StorageManager
 from application.data_classes.metadata_dc import MetadataBaseDC
 from application.enums.allowed_extensions import AllowedExtensions
-from application.spark_ds import spark
-from application.spark_ds.taxi_tripdata_schema import taxi_tripdata_schema
+from application.spark.taxi_tripdata_schema import taxi_tripdata_schema
 
 
 class StoreFileService:
