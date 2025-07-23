@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from application.enums.allowed_extensions import AllowedExtensions
 from application.enums.file_status import FileStatus
+from application.enums.trip_types import TripTypes
 
 
 class MetadataDC(BaseModel):
@@ -12,6 +13,7 @@ class MetadataDC(BaseModel):
     file_type: AllowedExtensions = AllowedExtensions.CSV
     storage_path: str = ""
     storage_path_processed: str | None = None
+    trip_type: TripTypes = None
     status: FileStatus = FileStatus.PENDING
 
 

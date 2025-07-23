@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from application.controllers.elastic_controller import ElasticController
 from application.controllers.upload_file_http import UploadFileHttp
 from application.enums.routing_keys import RoutingKeys
 from application.handlers.clock_handler import ClockHandler
@@ -30,3 +31,4 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(UploadFileHttp.router)
+app.include_router(ElasticController.router)

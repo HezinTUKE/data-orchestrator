@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from application.data_classes.metadata_dc import MetadataBaseDC
 from application.enums.allowed_extensions import AllowedExtensions
 from application.enums.file_status import FileStatus
+from application.enums.trip_types import TripTypes
+from application.indexes.taxi_index import TaxiIndex
 from application.models import MetadataModel
 from application.models.base import with_session
 from application.services.store_file_service import StoreFileService
@@ -17,7 +19,7 @@ class FileManagerHandler:
     @classmethod
     @with_session(retries=1)
     async def store_metadata(
-        cls, file_content: bytes, file_name: str, overwrite: bool, session: AsyncSession
+        cls, file_content: bytes, file_name: str, overwrite: bool, trip_type: TripTypes, session: AsyncSession
     ) -> bool:
         file_path = os.path.join("uploaded-data", str(datetime.datetime.now().year))
 
@@ -32,11 +34,13 @@ class FileManagerHandler:
             return False
 
         metadata_dc: MetadataBaseDC | None = await StoreFileService.upload_file(
-            file_name=file_name, file_content=file_content, file_path=file_path
+            file_name=file_name, file_content=file_content, file_path=file_path,
         )
 
         if not metadata_dc:
             return False
+
+        metadata_dc.trip_type = trip_type
 
         if dc_model:
             _query = (
@@ -86,9 +90,9 @@ class FileManagerHandler:
 
         return True
 
-    @classmethod
+    @staticmethod
     async def _process_particular_file(
-        cls, file_name: str, storage_path: str, file_type: AllowedExtensions
+        file_name: str, storage_path: str, file_type: AllowedExtensions, trip_type: TripTypes, metadata_id: str
     ) -> bool:
         try:
             file_data_frame: DataFrame = await StoreFileService.read_file(
@@ -96,6 +100,11 @@ class FileManagerHandler:
                 file_path=storage_path,
                 file_type=file_type,
             )
+            records_count = file_data_frame.count()
+            for idx in range(0, records_count, 100):
+                batch = file_data_frame.limit(100).offset(idx)
+                list_trips = list(map(lambda row: row.asDict(), batch.collect()))
+                await TaxiIndex.bulk_create(list_trips)
             return True
         except Exception as ex:
             print(ex)

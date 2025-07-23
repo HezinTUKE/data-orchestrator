@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from application.enums.allowed_extensions import AllowedExtensions
 from application.enums.file_status import FileStatus
+from application.enums.trip_types import TripTypes
 from application.models.base import Base
 
 
@@ -26,6 +27,8 @@ class MetadataModel(Base):
     status: Mapped[FileStatus] = mapped_column(
         Enum(FileStatus), nullable=False, default=FileStatus.PENDING, index=True
     )
+    trip_type: Mapped[str] = mapped_column(Enum(TripTypes), nullable=True)
+    year: Mapped[int] = mapped_column(Integer, nullable=True)
     created_at: Mapped[int] = mapped_column(Integer, default=lambda: int(time.time()))
     updated_at: Mapped[int] = mapped_column(
         Integer, default=lambda: int(time.time()), onupdate=lambda: int(time.time())

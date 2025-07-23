@@ -2,8 +2,12 @@ import asyncio
 import json
 
 import aio_pika
-from aio_pika.abc import (AbstractChannel, AbstractConnection,
-                          AbstractExchange, AbstractIncomingMessage)
+from aio_pika.abc import (
+    AbstractChannel,
+    AbstractConnection,
+    AbstractExchange,
+    AbstractIncomingMessage,
+)
 
 from application.config import get_config_section
 from application.enums.routing_keys import RoutingKeys

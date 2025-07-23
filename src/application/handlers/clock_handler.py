@@ -16,13 +16,13 @@ class ClockHandler:
     async def send_events(
         cls,
         rabbitmq: MessageBrokerService,
-        delay: int = 10,
+        delay: int = 5,
         batch_size: int = 100,
         session: AsyncSession = None,
         event: asyncio.Event = None,
     ):
         while not event.is_set():
-            await asyncio.sleep(delay)
+            # await asyncio.sleep(delay)
 
             _query = (
                 select(MetadataModel)

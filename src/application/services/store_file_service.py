@@ -42,10 +42,19 @@ class StoreFileService:
         s3_bucket_path = f"s3a://{s3_manager.bucket.name}/{full_path}"
         if file_type == AllowedExtensions.PARQUET:
             parquet_content = spark.read.parquet(s3_bucket_path)
-            return spark.createDataFrame(
+            res = spark.createDataFrame(
                 parquet_content.rdd, schema=taxi_tripdata_schema
             )
         else:
-            return spark.read.csv(
+            res = spark.read.csv(
                 s3_bucket_path, header=True, schema=taxi_tripdata_schema
             )
+
+        return res.fillna({
+            "passenger_count": 0,
+            "RatecodeID": 1,
+            "store_and_fwd_flag": "N",
+            "congestion_surcharge": 0.0,
+            "Airport_fee": 0.0,
+            "cbd_congestion_fee": 0.0
+        })
